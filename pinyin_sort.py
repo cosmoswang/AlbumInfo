@@ -5,6 +5,14 @@ from plexapi.server import PlexServer
 from pypinyin import lazy_pinyin, Style
 from datetime import datetime
 
+def test():
+    plex = PlexServer()
+
+    movies = plex.library.section('电影')
+    for movie in movies.all():
+        if movie.title == '流浪地球':
+            print('{} - {}'.format(movie.title, movie.updatedAt))
+
 def main():
     plex = PlexServer()
 
@@ -17,7 +25,7 @@ def main():
             log('跳过movie: {} ({})'.format(movie.title, movie.guid))
             pass
         elif movie.guid.startswith('plex://'):
-            if movie.titleSort.locked == 1:
+            if isTitleSortLocked(movie):
                 log('跳过movie: {} (titleSort.locked)'.format(movie.title))
                 continue
 
@@ -53,9 +61,15 @@ def readTime():
 def writeTime(time):
     with open('time.txt', 'w') as f:
         f.write(time.strftime('%Y-%m-%d %H:%M:%S'))
+
+def isTitleSortLocked(movie):
+    for f in movie.fields:
+        if f.name == 'titleSort':
+            return f.locked
         
 def log(msg):
     print('[{}]:{}'.format(datetime.now(), msg))
 
 if __name__ == '__main__':
     main()
+    # test()
