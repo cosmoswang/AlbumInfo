@@ -1,2 +1,4 @@
 plexapi
 requests
+flask
+pypinyin
