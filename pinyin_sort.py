@@ -17,15 +17,19 @@ def main():
             log('跳过movie: {} ({})'.format(movie.title, movie.guid))
             pass
         elif movie.guid.startswith('plex://'):
+            if movie.titleSort.locked == 1:
+                log('跳过movie: {} (titleSort.locked)'.format(movie.title))
+                continue
+
             title = movie.title
-            title = title.upper()
+            title = title.lower()
             sortedTitle = ''
             for c in title:
                 pinyin = lazy_pinyin(c, style=Style.TONE3, errors='ignore')
                 if len(pinyin) == 0:
                     sortedTitle += c
                 else:
-                    sortedTitle += '{:#<7}'.format(pinyin[0])[:7]
+                    sortedTitle += '{:#<7}'.format(pinyin[0])[:7].upper()
 
             sortedTitle = sortedTitle[:50]
 
