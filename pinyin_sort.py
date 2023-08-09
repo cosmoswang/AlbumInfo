@@ -4,21 +4,19 @@
 from plexapi.server import PlexServer
 from pypinyin import lazy_pinyin, Style
 from datetime import datetime
+import sys
 
-def test():
-    plex = PlexServer()
+def test(timefile='time1.txt'):
+    time = readTime(timefile)
+    print(time)
+    writeTime(datetime.now(), timefile)
 
-    movies = plex.library.section('电影')
-    for movie in movies.all():
-        if movie.title == '流浪地球':
-            print('{} - {}'.format(movie.title, movie.updatedAt))
-
-def main():
+def main(timefile='time.txt'):
     plex = PlexServer()
 
     movies = plex.library.section('电影')
     timefrom = readTime()
-    log('timefrom: {}'.format(timefrom))
+    log('timefrom: {}, timefile: {}'.format(timefrom, timefile))
     for section in plex.library.sections():
         if not filterSection(section):
             continue
@@ -95,16 +93,16 @@ def generateSortTitle(title):
 
     return sortedTitle[:50]
 
-def readTime():
+def readTime(timefile):
     try:
-        with open('time.txt', 'r') as f:
+        with open(timefile, 'r') as f:
             str = f.read()
             return datetime.strptime(str, '%Y-%m-%d %H:%M:%S')
     except FileNotFoundError:
         return datetime(year=1990, month=1, day=1, hour=0, minute=0, second=0)
     
-def writeTime(time):
-    with open('time.txt', 'w') as f:
+def writeTime(time, timefile):
+    with open(timefile, 'w') as f:
         f.write(time.strftime('%Y-%m-%d %H:%M:%S'))
 
 def isTitleSortLocked(movie):
@@ -116,5 +114,7 @@ def log(msg):
     print('[{}]:{}'.format(datetime.now(), msg))
 
 if __name__ == '__main__':
-    main()
-    # test()
+    if len(sys.argv) > 1:
+        main(sys.argv[1])
+    else:
+        main()
