@@ -15,7 +15,7 @@ def main(timefile='time.txt'):
     plex = PlexServer()
 
     movies = plex.library.section('电影')
-    timefrom = readTime()
+    timefrom = readTime(timefile)
     log('timefrom: {}, timefile: {}'.format(timefrom, timefile))
     for section in plex.library.sections():
         if not filterSection(section):
@@ -28,7 +28,7 @@ def main(timefile='time.txt'):
             log('处理section: {} - {}'.format(section.title, section.type))
             process_show_section(section, timefrom)
 
-    writeTime(datetime.now())
+    writeTime(datetime.now(), timefile)
         
 
 def filterSection(section):
