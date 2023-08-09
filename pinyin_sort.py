@@ -23,16 +23,18 @@ def main():
         if not filterSection(section):
             continue
         
-        log('处理section: {} - {}'.format(section.title, section.type))
         if section.type == 'movie':
-            # process_movie_section(section, timefrom)
-            pass
+            log('处理section: {} - {}'.format(section.title, section.type))
+            process_movie_section(section, timefrom)
         elif section.type == 'show':
+            log('处理section: {} - {}'.format(section.title, section.type))
             process_show_section(section, timefrom)
+
+    writeTime(datetime.now())
         
 
 def filterSection(section):
-    return section.title in ['电影', '电视节目', '演唱会', '有声书', '音乐']
+    return section.title in ['电影', '电视节目']
     
 
 def process_movie_section(movies, timefrom):
