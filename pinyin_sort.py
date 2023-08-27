@@ -24,6 +24,7 @@ def main(timefile='time.txt'):
         if section.type == 'movie':
             log('处理section: {} - {}'.format(section.title, section.type))
             process_movie_section(section, timefrom)
+            process_movie_collection(section, timefrom)
         elif section.type == 'show':
             log('处理section: {} - {}'.format(section.title, section.type))
             process_show_section(section, timefrom)
@@ -58,6 +59,20 @@ def process_movie_section(movies, timefrom):
             log('Unknown guid: {} - ({})'.format(movie.guid, movie.title))
             continue
 
+def process_movie_collection(movies, timefrom):
+    for collection in movies.collections():
+        if timefrom > collection.updatedAt:
+            continue
+
+        if isTitleSortLocked(collection):
+            log('跳过collection: {} (titleSort.locked)'.format(collection.title))
+            continue
+
+        sortedTitle = generateSortTitle(collection.title)
+
+        collection.editSortTitle(sortedTitle)
+        log('处理collection: {} ({})'.format(collection.title, sortedTitle))
+        
 def process_show_section(shows, timefrom):
     for show in shows.search(filters={'updatedAt>>': timefrom}):
         log('处理show: {} at {}'.format(show.title, show.updatedAt))
