@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys, os, tempfile
+import sys, os, tempfile, requests, json
 
 temp_metadata_file = os.path.join(tempfile.gettempdir(), 'plex_metadata.txt')
 
@@ -28,7 +28,19 @@ def main(path):
                 print('写入歌词文件: {}'.format(lrcFile))
             else:
                 ## 从网上下载歌词
-                pass
+                artist = metadata['artist'] if 'artist' in metadata else None
+                title = metadata['title'] if 'title' in metadata else None
+                album = metadata['album'] if 'album' in metadata else None
+                lyrics = downloadLyrics(artist, title, album)
+                if lyrics is not None:
+                    lrcFile = os.path.splitext(fullpath)[0] + '.lrc'
+                    with open(lrcFile, 'w') as f:
+                        f.write(lyrics)
+                    print('下载歌词文件: {}'.format(lrcFile))
+                else:
+                    print('未找到歌词: {} - {}'.format(artist, title))
+
+            
 
 def downloadLyrics(artist, title, album):
     keyword = title is not None and title
@@ -36,9 +48,32 @@ def downloadLyrics(artist, title, album):
     keyword += album is not None and ' ' + album
 
     searchUrl = 'http://192.168.1.29:51100/search?keywords={}'.format(keyword)
+    # 发送请求
+    r = requests.get(searchUrl)
 
+    if r.status_code != 200:
+        print('请求失败: {}'.format(r.status_code))
+        return
     
-    pass
+    # 解析返回的json
+    result = json.loads(r.text)
+
+    id = result['result']['songs'][0]['id']
+
+    lyricUrl = 'http://192.168.1.29:51100/lyric?id={}'.format(id)
+
+    r = requests.get(lyricUrl)
+
+    if r.status_code != 200:
+        print('请求失败: {}'.format(r.status_code))
+        return
+    
+    # 解析返回的json
+    result = json.loads(r.text)
+
+    lyric = result['lrc']['lyric']
+
+    return lyric
 
 def hasLyricsFile(file):
     lrcFile = os.path.splitext(file)[0] + '.lrc'
@@ -80,4 +115,4 @@ if __name__ == '__main__':
         main(sys.argv[1])
     else:
         # print('Usage: {} <path>'.format(sys.argv[0]))
-        main('/Volumes/Music/Music/湖南卫视/歌手 2016')
+        main('/Volumes/Music/Music/陈小春/绝对收藏/disc2')
