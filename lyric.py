@@ -18,6 +18,7 @@ def main(path):
                 continue
 
             # 读取元数据
+            print('处理文件: {}'.format(fullpath))
             metadata = readMetadata(fullpath)
 
             if 'lyrics' in metadata:
@@ -25,7 +26,7 @@ def main(path):
                 lrcFile = os.path.splitext(fullpath)[0] + '.lrc'
                 with open(lrcFile, 'w') as f:
                     f.write(lyrics)
-                print('写入歌词文件: {}'.format(lrcFile))
+                print('\t写入歌词文件: {}'.format(lrcFile))
             else:
                 ## 从网上下载歌词
                 artist = metadata['artist'] if 'artist' in metadata else None
@@ -36,9 +37,9 @@ def main(path):
                     lrcFile = os.path.splitext(fullpath)[0] + '.lrc'
                     with open(lrcFile, 'w') as f:
                         f.write(lyrics)
-                    print('下载歌词文件: {}'.format(lrcFile))
+                    print('\t下载歌词文件: {}'.format(lrcFile))
                 else:
-                    print('未找到歌词: {} - {}'.format(artist, title))
+                    print('\t未找到歌词: {} - {}'.format(artist, title))
 
             
 
@@ -52,7 +53,7 @@ def downloadLyrics(artist, title, album):
     r = requests.get(searchUrl)
 
     if r.status_code != 200:
-        print('请求失败: {}'.format(r.status_code))
+        print('\t请求失败: {}'.format(r.status_code))
         return
     
     # 解析返回的json
@@ -65,7 +66,7 @@ def downloadLyrics(artist, title, album):
     r = requests.get(lyricUrl)
 
     if r.status_code != 200:
-        print('请求失败: {}'.format(r.status_code))
+        print('\t请求失败: {}'.format(r.status_code))
         return
     
     # 解析返回的json
