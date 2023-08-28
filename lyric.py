@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys, os, tempfile, requests, json
+import sys, os, tempfile, requests, json, time
 
 temp_metadata_file = os.path.join(tempfile.gettempdir(), 'plex_metadata.txt')
 
@@ -72,6 +72,9 @@ def downloadLyrics(artist, title, album):
     result = json.loads(r.text)
 
     lyric = result['lrc']['lyric']
+
+    # 休眠一秒钟
+    time.sleep(1)
 
     return lyric
 
