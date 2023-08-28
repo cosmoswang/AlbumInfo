@@ -14,13 +14,35 @@ def main(path):
 
             fullpath = os.path.join(root, file)
 
+            if hasLyricsFile(fullpath):
+                continue
+
             # 读取元数据
             metadata = readMetadata(fullpath)
 
-            if not 'lyrics' in metadata:
-                print('{} - {} - {}'.format(metadata['artist'], metadata['title'], metadata['album']), end=' ')
-            
-                print(' lyrics: {}'.format('lyrics' in metadata))
+            if 'lyrics' in metadata:
+                lyrics = metadata['lyrics']
+                lrcFile = os.path.splitext(fullpath)[0] + '.lrc'
+                with open(lrcFile, 'w') as f:
+                    f.write(lyrics)
+                print('写入歌词文件: {}'.format(lrcFile))
+            else:
+                ## 从网上下载歌词
+                pass
+
+def downloadLyrics(artist, title, album):
+    keyword = title is not None and title
+    keyword += artist is not None and ' ' + artist
+    keyword += album is not None and ' ' + album
+
+    searchUrl = 'http://192.168.1.29:51100/search?keywords={}'.format(keyword)
+
+    
+    pass
+
+def hasLyricsFile(file):
+    lrcFile = os.path.splitext(file)[0] + '.lrc'
+    return os.path.exists(lrcFile)
 
 def readMetadata(file):
     os.system('ffmpeg -i "{}" -f ffmetadata -y -loglevel error "{}"'.format(file, temp_metadata_file))
