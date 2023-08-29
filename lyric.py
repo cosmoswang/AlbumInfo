@@ -88,6 +88,10 @@ def downloadLyrics(artist, title, album):
     # 解析返回的json
     result = json.loads(r.text)
 
+    if 'lrc' not in result or 'lyric' not in result['lrc']:
+        print('\t未找到歌词: {}'.format(r.text))
+        return
+
     lyric = result['lrc']['lyric']
 
     # 休眠300ms，防止请求过快
