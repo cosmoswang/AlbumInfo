@@ -48,6 +48,7 @@ def downloadLyrics(artist, title, album):
     keyword += artist is not None and ' ' + artist
     keyword += album is not None and ' 《' + album + '》'
 
+    print('\t搜索歌词: {}'.format(keyword))
     searchUrl = 'http://192.168.1.29:51100/search?keywords={}'.format(keyword)
     # 发送请求
     r = requests.get(searchUrl)
@@ -89,8 +90,9 @@ def downloadLyrics(artist, title, album):
 
     lyric = result['lrc']['lyric']
 
-    # 休眠一秒钟
-    time.sleep(1)
+    # 休眠300ms，防止请求过快
+    time.sleep(0.3)
+    # time.sleep(1)
 
     return lyric
 
