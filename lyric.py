@@ -39,6 +39,10 @@ def main(path):
                         f.write(lyrics)
                     print('\t下载歌词文件: {}'.format(lrcFile))
                 else:
+                    nolrcFile = os.path.splitext(fullpath)[0] + '.nolrc'
+                    # 创建空文件
+                    open(nolrcFile, 'w').close()
+
                     print('\t未找到歌词: {} - {}'.format(artist, title))
 
             
@@ -102,7 +106,8 @@ def downloadLyrics(artist, title, album):
 
 def hasLyricsFile(file):
     lrcFile = os.path.splitext(file)[0] + '.lrc'
-    return os.path.exists(lrcFile)
+    noLrcFile = os.path.splitext(file)[0] + '.nolrc'
+    return os.path.exists(lrcFile) or os.path.exists(noLrcFile)
 
 def readMetadata(file):
     os.system('ffmpeg -i "{}" -f ffmetadata -y -loglevel error "{}"'.format(file, temp_metadata_file))
