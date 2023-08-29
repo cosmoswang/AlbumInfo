@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys, os, tempfile, requests, json, time
+import sys, os, tempfile, requests, json, time, difflib
 
 temp_metadata_file = os.path.join(tempfile.gettempdir(), 'plex_metadata.txt')
 
@@ -46,7 +46,7 @@ def main(path):
 def downloadLyrics(artist, title, album):
     keyword = title is not None and title
     keyword += artist is not None and ' ' + artist
-    keyword += album is not None and ' ' + album
+    keyword += album is not None and ' 《' + album + '》'
 
     searchUrl = 'http://192.168.1.29:51100/search?keywords={}'.format(keyword)
     # 发送请求
@@ -59,7 +59,22 @@ def downloadLyrics(artist, title, album):
     # 解析返回的json
     result = json.loads(r.text)
 
-    id = result['result']['songs'][0]['id']
+    if 'result' not in result or 'songs' not in result['result'] or len(result['result']['songs']) == 0:
+        print('\t未找到歌曲: {}'.format(r.text))
+        return
+
+    # id = result['result']['songs'][0]['id']
+    id = -1
+    for song in result['result']['songs']:
+        song_name = song['name']
+        # 根据相似度判断是否是同一首歌
+        similarity = difflib.SequenceMatcher(None, song_name, title).quick_ratio()
+        if similarity > 0.8:
+            id = song['id']
+            break
+
+    if id == -1:
+        id = result['result']['songs'][0]['id']
 
     lyricUrl = 'http://192.168.1.29:51100/lyric?id={}'.format(id)
 
