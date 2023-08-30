@@ -129,7 +129,10 @@ def readMetadata(file):
     metadata_string = metadata_string.replace('\\\n', '#LINEBREAK#')
     for line in metadata_string.split('\n'):
         if '=' in line:
-            key, value = line.split('=')
+            dict = line.split('=')
+            if len(dict) < 2:
+                continue
+            key, value = dict[0], dict[1] 
             metadata[key.lower()] = value.replace('#LINEBREAK#', '\n')
 
     return metadata
