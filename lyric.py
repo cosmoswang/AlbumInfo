@@ -126,7 +126,7 @@ def readMetadata(file):
     # date=2003
     # encoder=Lavf60.3.100
     metadata = {}
-    metadata_string = metadata_string.replace('\\\n', '#LINEBREAK#')
+    metadata_string = metadata_string.replace('\\\n', '#LINEBREAK#').replace('\n\\', '#LINEBREAK#')
     for line in metadata_string.split('\n'):
         if '=' in line:
             dict = line.split('=')
