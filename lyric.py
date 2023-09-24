@@ -34,10 +34,14 @@ def main(path):
                 album = metadata['album'] if 'album' in metadata else None
                 lyrics = downloadLyrics(artist, title, album)
                 if lyrics is not None:
-                    lrcFile = os.path.splitext(fullpath)[0] + '.lrc'
-                    with open(lrcFile, 'w') as f:
-                        f.write(lyrics)
-                    print('\t下载歌词文件: {}'.format(lrcFile))
+                    if lyrics == -1:
+                        print('\t请求超时，跳过当前歌曲。30s后继续')
+                        time.sleep(30)
+                    else:
+                        lrcFile = os.path.splitext(fullpath)[0] + '.lrc'
+                        with open(lrcFile, 'w') as f:
+                            f.write(lyrics)
+                        print('\t下载歌词文件: {}'.format(lrcFile))
                 else:
                     nolrcFile = os.path.splitext(fullpath)[0] + '.nolrc'
                     # 创建空文件
@@ -56,6 +60,16 @@ def downloadLyrics(artist, title, album):
     searchUrl = 'http://192.168.1.29:51100/search?keywords={}'.format(keyword)
     # 发送请求
     r = requests.get(searchUrl)
+
+    if r.status_code == 405:
+        # 超时重试一次
+        print('\t请求超时，10s后重试')
+        time.sleep(10)
+        r = requests.get(searchUrl)
+
+    if r.status_code == 405:
+        print('\t请求失败: {}'.format(r.status_code))
+        return -1
 
     if r.status_code != 200:
         print('\t请求失败: {}'.format(r.status_code))
@@ -99,7 +113,7 @@ def downloadLyrics(artist, title, album):
     lyric = result['lrc']['lyric']
 
     # 休眠300ms，防止请求过快
-    time.sleep(0.3)
+    time.sleep(1)
     # time.sleep(1)
 
     return lyric
